@@ -9,7 +9,7 @@ RUN apk add --no-cache gcc make && \
     cd manifest-tool && \
     make binary && \
     install manifest-tool /usr/local/bin && \
-    apk remove gcc make
+    apk del gcc make
 USER go
 
 ENTRYPOINT ["manifest-tool"]
