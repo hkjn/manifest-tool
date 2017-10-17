@@ -1,0 +1,13 @@
+set -euo pipefail
+
+DOCKER_USER="hkjn"
+DOCKER_IMAGE="manifest-tool"
+CPU_ARCH="$(uname -m)"
+TAG="${DOCKER_USER}/${DOCKER_IMAGE}:${CPU_ARCH}"
+
+docker build -t ${TAG} .
+NO_PUSH=${NO_PUSH:-""}
+if [[ ! "${NO_PUSH}" ]]; then
+  docker push ${TAG}
+fi
+
