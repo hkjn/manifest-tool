@@ -3,15 +3,23 @@ set -euo pipefail
 declare DOCKER_USER="hkjn"
 declare DOCKER_IMAGE="manifest-tool"
 declare CPU_ARCH="$(uname -m)"
+declare NO_PUSH=${NO_PUSH:-""}
 declare -A DOCKER_ARCHS
 DOCKER_ARCHS["x86_64"]="amd64"
 DOCKER_ARCHS["armv7l"]="arm"
 declare DOCKER_ARCH=${DOCKER_ARCHS[${CPU_ARCH}]}
 declare TAG="${DOCKER_USER}/${DOCKER_IMAGE}:${DOCKER_ARCH}"
 
+echo "Building ${TAG}.."
 docker build -t ${TAG} .
-NO_PUSH=${NO_PUSH:-""}
 if [[ ! "${NO_PUSH}" ]]; then
-  docker push ${TAG}
+	echo "Pushing ${TAG}.."
+	docker push ${TAG}
 fi
 
+echo "Pushing multi-arch manifest.."
+docker run -v ${HOME}/.docker:/root/.docker:ro --rm -it \
+       hkjn/manifest-tool:${DOCKER_ARCH} \
+          push from-args --platforms linux/amd64,linux/arm \
+                         --template hkjn/manifest-tool:ARCH \
+                         --target hkjn/manifest-tool
